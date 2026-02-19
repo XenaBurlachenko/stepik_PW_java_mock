@@ -18,7 +18,9 @@ jobs:
         distribution: 'temurin'
     
     - name: Install Playwright browsers
-      run: mvn exec:java -e -D exec.mainClass=com.microsoft.playwright.CLI -D exec.args="install"
+      run: |
+        mvn dependency:get -Dartifact=com.microsoft.playwright:playwright:1.41.2
+        java -cp $(echo ~/.m2/repository/com/microsoft/playwright/playwright/1.41.2/playwright-1.41.2.jar) com.microsoft.playwright.CLI install
     
     - name: Run tests
       run: mvn clean test
