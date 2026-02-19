@@ -64,6 +64,49 @@ public class MockedApiTest {
     }
 
     @Test
+    void testUserProfileWithSlowApi() {
+        // Создаем  API сервис с задержкой
+        ApiService slowApiService = new ApiService();
+    
+        // Загружаем страницу
+        page.navigate("https://the-internet.herokuapp.com/dynamic_content");
+    
+        // Вызываем медленный API
+        String userData = slowApiService.fetchUserData();
+    
+        // Внедряем данные на уже загруженную страницу
+        page.evaluate("(data) => { window.userData = JSON.parse(data); }", userData);
+    
+        // Проверяем, что данные доступны в окне браузера
+        Object userName = page.evaluate("() => window.userData.name");
+        Object userEmail = page.evaluate("() => window.userData.email");
+    
+        // Проверяем результат 
+        assertNotNull(userName);
+        assertNotNull(userEmail);
+        assertEquals("Real User", userName);
+        assertEquals("real@example.com", userEmail);
+    
+        // Получаем весь объект целиком
+        Object result = page.evaluate("() => window.userData");
+        assertNotNull(result);
+        assertTrue(result.toString().contains("Real User"));
+    }
+
+    // Имитация медленного API
+    static class ApiService {
+        public String fetchUserData() {
+            // Имитация медленного API-запроса
+            try {
+            Thread.sleep(3000); 
+            } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            }
+            return "{\"name\": \"Real User\", \"email\": \"real@example.com\"}";
+        }
+    }
+
+    @Test
     // Альтернативная математика, через localStorage
     void testUserProfileWithAlternativeApproach() {
         
