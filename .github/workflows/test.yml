@@ -17,10 +17,12 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
     
+    - name: Build with Maven
+      run: mvn clean compile dependency:copy-dependencies -DincludeScope=runtime
+    
     - name: Install Playwright browsers
       run: |
-        mvn dependency:get -Dartifact=com.microsoft.playwright:playwright:1.41.2
-        java -cp $(echo ~/.m2/repository/com/microsoft/playwright/playwright/1.41.2/playwright-1.41.2.jar) com.microsoft.playwright.CLI install
+        java -cp "target/classes:target/dependency/*" com.microsoft.playwright.CLI install
     
     - name: Run tests
       run: mvn clean test
